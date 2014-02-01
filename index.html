@@ -1,0 +1,26 @@
+<html>
+   <head>
+      <title>ImgHider, your images -- classified.</title>
+      <link rel="stylesheet" type="text/css" href="css/styles.css"/>
+   </head>
+   <body>
+      <div id='container'>
+         <div id='top'>
+            <input id="filechooser" type="file" name="files[]"><br/>
+         Shift red by: <input type="range" name="red" min="0" max="255" id="redshift">
+         Shift green by: <input type="range" name="green" min="0" max="255" id="blueshift">
+         Shift blue by: <input type="range" name="blue" min="0" max="255" id="greenshift">
+         </div>
+
+         <div id='middle'>
+            <canvas id='img1'></canvas> 
+            <canvas id='img2'></canvas>
+         </div>
+
+         <div id='bottom'>
+         </div>
+      </div>
+
+      <script type="text/javascript" src="js/main.js"></script>
+   </body>
+</html>

@@ -1,0 +1,32 @@
+#top{
+   width: 100%;
+   height: 10%;
+   min-height: 26px;
+   background: silver;
+}
+
+#middle{
+   height: 70%;
+}
+
+#img1{
+   width: 300px;
+   height: 300px;
+   background: blue;
+   float: left;
+   margin-left: 40px;
+   margin-top: 20px;
+}
+
+#img2{
+   width: 300;
+   height: 300;
+   background: red;
+   float: left;
+   margin-left: 100px;
+   margin-top: 20px;
+}
+
+#bottom{
+   height: 20%;
+}
