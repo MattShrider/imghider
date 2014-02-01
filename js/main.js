@@ -86,56 +86,51 @@ function createContext(imgurl){
    var image = new Image();
    image.src=imgurl;
 
-   /*
-   var before=document.getElementById("img1");
-   before.width = 300;
-   before.height = 300;
-   var beforectx = before.getContext("2d");
-
-   var can=document.getElementById("img2");
-   can.width = 300;
-   can.height = 300;
-   var ctx=can.getContext("2d");
-
-   var offscreen = document.createElement('canvas');
-   offscreen.width = image.width;
-   offscreen.height = image.height;
-   var ctxoff=offscreen.getContext("2d");
-
-   */
-
    beforectx.drawImage(image, 0, 0, 300, 300);
    ctxoff.drawImage(image, 0, 0);
 
    /* Before drawing, apply a cipher to the second image */
    imgData = beforectx.getImageData(0,0, before.width, before.height);
-   var encryptedImage = shiftEncrypt(imgData, 50, 50, 50);
 
-   ctx.putImageData(encryptedImage, 0, 0);
+   drawEncryption();
 }
 
-function drawEncryption(key, key, key){
+/* Helper function chooses which encryption type to use */
+function drawEncryption(){
 
+   var red = parseInt(document.getElementById("redshift").value);
+   var blue = parseInt(document.getElementById("blueshift").value);
+   var green = parseInt(document.getElementById("greenshift").value);
 
+   document.getElementById("output").innerHTML = red + ", " + green + ", " + blue;
 
+   var data = beforectx.getImageData(0, 0, before.width, before.height);
+
+   console.log(data);
+   if (data.data.length != 0)
+      ctx.putImageData(shiftEncrypt(data, red, green, blue), 0, 0);
 }
 
+/* Add the draw function to the range inputs */
+document.getElementById("redshift").addEventListener('change', drawEncryption, false);
+document.getElementById("greenshift").addEventListener('change', drawEncryption, false);
+document.getElementById("blueshift").addEventListener('change', drawEncryption, false);
 
 /* **********************************************************
  * begin encryption functions
  * *********************************************************/
 
-
-function shiftEncrypt(keyred, keygreen, keyblue) {
-   var data = imgData;
-   console.log(data);
+function shiftEncrypt(data, keyred, keygreen, keyblue) {
+   console.log(keyred, keygreen, keyblue);
 
    for (var i=0; i<data.data.length; i+=4){
 
       data.data[i] = (data.data[i] + keyred) % 256;
-      data.data[i] = (data.data[i] + keygreen) % 256;
-      data.data[i] = (data.data[i] + keyblue) % 256;
+      data.data[i+1] = (data.data[i+1] + keygreen) % 256;
+      data.data[i+2] = (data.data[i+2] + keyblue) % 256;
+
    }
+
 
    return data;
 
