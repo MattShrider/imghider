@@ -98,17 +98,30 @@ function createContext(imgurl){
 /* Helper function chooses which encryption type to use */
 function drawEncryption(){
 
-   var red = parseInt(document.getElementById("redshift").value);
-   var blue = parseInt(document.getElementById("blueshift").value);
-   var green = parseInt(document.getElementById("greenshift").value);
+   var red = parseInt($("#redshift").val());
+   var blue = parseInt($("#blueshift").val());
+   var green = parseInt($("#greenshift").val());
 
    document.getElementById("output").innerHTML = red + ", " + green + ", " + blue;
 
    var data = beforectx.getImageData(0, 0, before.width, before.height);
 
    console.log(data);
-   if (data.data.length != 0)
-      ctx.putImageData(shiftEncrypt(data, red, green, blue), 0, 0);
+   if (data.data.length != 0){
+      switch($("#selector").val()){
+         case("caesar"):
+               ctx.putImageData(shiftEncrypt(data, red, green, blue), 0, 0);
+         break;
+         case("affine"):
+         break;
+         case("vigenere"):
+         break;
+         case("aes"):
+         break;
+         default:
+         console.log("Yur dumb u haker");
+      }
+   }
 }
 
 /* Add the draw function to the range inputs */

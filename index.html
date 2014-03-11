@@ -2,6 +2,7 @@
    <head>
       <title>ImgHider, your images -- classified.</title>
       <link rel="stylesheet" type="text/css" href="css/styles.css"/>
+      <script type="text/javascript" src="https://code.jquery.com/jquery-git2.min.js"></script>
    </head>
    <body>
       <div id='container'>
@@ -10,7 +11,23 @@
          Shift red by: <input type="range" name="red" min="0" max="255" id="redshift" value="10">
          Shift green by: <input type="range" name="green" min="0" max="255" id="greenshift" value="0">
          Shift blue by: <input type="range" name="blue" min="0" max="255" id="blueshift" value="0"><br/>
-         Your key is: <span id="output">10, 0, 0</span>
+         Your key is: <span id="output">10, 0, 0</span><br/>
+         Select your Cipher: 
+         <select id="selector">
+            <option value="caesar">Caesar</option>
+            <option value="affine">Affine</option>
+            <option value="vigenere">Vigenere</option>
+            <option value="aes">AES</option>
+            <option value="des">DES</option>
+            <option value="shuffle">Shuffle</option>
+            <option value="xorShuffle">XOR Shuffle</option>
+            <option value="elgamal">Elgamal</option>
+            <option value="playfair">Playfair</option>
+            <option value="hillCipher">Hill Cipher</option>
+            <option value="ideaBlockCipher">IDEA Block Cipher</option>
+            <option value="fealCipher">FEAL Cipher</option>
+         </select>
+
          </div>
 
          <div id='middle'>
