@@ -36,7 +36,10 @@ function fileChanged(e) {
 //add listener to the upload button
 var uploadButton = document.getElementById('filechooser');
 uploadButton.addEventListener('change', fileChanged, false);
-
+save.addEventListener('click', function(){
+   var dataURL = can.toDataURL("image/png");
+   window.open(dataURL);
+}, false);
 
 /* Gets the file URL of a dropped file onto the page */
 function droppedFile(e) {
