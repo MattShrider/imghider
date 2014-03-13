@@ -6,11 +6,6 @@
  * Author: Matthew Shrider
  * **********************************************/
 
-
-Number.prototype.mod = function(n) {
-   return ((this%n)+n)%n;
-}
-
 /* Get our "before" canvas */
 var before=document.getElementById("img1");
 before.width = 300;
@@ -161,9 +156,9 @@ function shiftCipher(data, keyred, keygreen, keyblue) {
 
       for (var i=0; i<data.data.length; i+=4){
 
-         data.data[i] = (data.data[i] - keyred).mod(256);
-         data.data[i+1] = (data.data[i+1] - keygreen).mod(256);
-         data.data[i+2] = (data.data[i+2] - keyblue).mod(256);
+         data.data[i] = (data.data[i] + 256 - keyred) % 256;
+         data.data[i+1] = (data.data[i+1] + 256 - keygreen) % 256;
+         data.data[i+2] = (data.data[i+2] + 256 - keyblue) % 256;
 
       }
    }
