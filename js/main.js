@@ -7,11 +7,17 @@
  * **********************************************/
 
 
+Number.prototype.mod = function(n) {
+   return ((this%n)+n)%n;
+}
+
 /* Get our "before" canvas */
 var before=document.getElementById("img1");
 before.width = 300;
 before.height = 300;
 var beforectx = before.getContext("2d");
+
+var encrypting = true;
 
 /* Get our visible canvas */
 var can=document.getElementById("img2");
@@ -58,6 +64,12 @@ function draggedFile(e) {
 var dropElement = document.getElementById('container');
 dropElement.addEventListener('dragover', draggedFile, false);
 dropElement.addEventListener('drop', droppedFile, false);
+
+// Toggle encrypting variable
+$("#encrypt, #decrypt").change(function (){
+   encrypting = $("#encrypt")[0].checked;
+   console.log(encrypting);
+});
 
 
 /* load the opened file into the website (img1) */
@@ -110,7 +122,7 @@ function drawEncryption(){
    if (data.data.length != 0){
       switch($("#selector").val()){
          case("caesar"):
-               ctx.putImageData(shiftEncrypt(data, red, green, blue), 0, 0);
+               ctx.putImageData(shiftCipher(data, red, green, blue), 0, 0);
          break;
          case("affine"):
          break;
@@ -130,29 +142,33 @@ document.getElementById("greenshift").addEventListener('change', drawEncryption,
 document.getElementById("blueshift").addEventListener('change', drawEncryption, false);
 
 /* **********************************************************
- * begin encryption functions
+ * begin functions
  * *********************************************************/
 
-function shiftEncrypt(data, keyred, keygreen, keyblue) {
+function shiftCipher(data, keyred, keygreen, keyblue) {
    console.log(keyred, keygreen, keyblue);
 
-   for (var i=0; i<data.data.length; i+=4){
+   // Encrypt
+   if (encrypting){
+      for (var i=0; i<data.data.length; i+=4){
 
-      data.data[i] = (data.data[i] + keyred) % 256;
-      data.data[i+1] = (data.data[i+1] + keygreen) % 256;
-      data.data[i+2] = (data.data[i+2] + keyblue) % 256;
+         data.data[i] = (data.data[i] + keyred) % 256;
+         data.data[i+1] = (data.data[i+1] + keygreen) % 256;
+         data.data[i+2] = (data.data[i+2] + keyblue) % 256;
+      }
 
+   }else{
+
+      for (var i=0; i<data.data.length; i+=4){
+
+         data.data[i] = (data.data[i] - keyred).mod(256);
+         data.data[i+1] = (data.data[i+1] - keygreen).mod(256);
+         data.data[i+2] = (data.data[i+2] - keyblue).mod(256);
+
+      }
    }
 
-
    return data;
-
-}
-
-function shiftDecrypt(data, key) {
-
-
-
 }
 
 
