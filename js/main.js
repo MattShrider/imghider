@@ -41,6 +41,30 @@ save.addEventListener('click', function(){
    window.open(dataURL);
 }, false);
 
+function changeCipher(){
+   console.log("changing cipher");
+   var div = $('#sliders')[0];
+   console.log(div);
+   switch ($('#selector').val()){
+      case("caesar"):
+      break;
+      case("affine"):
+         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>"
+         $('#redshift').change(drawEncryption);
+         console.log("it changed, dummy");
+      break;
+      case("vigenere"):
+      break;
+      case("aes"):
+      break;
+      default:
+         console.log("Yur dumb u haker");
+   }
+
+}
+//add listener to combo box
+$('#selector').change(changeCipher);
+
 /* Gets the file URL of a dropped file onto the page */
 function droppedFile(e) {
    console.log(e);
@@ -108,11 +132,7 @@ function createContext(imgurl){
 /* Helper function chooses which encryption type to use */
 function drawEncryption(){
 
-   var red = parseInt($("#redshift").val());
-   var blue = parseInt($("#blueshift").val());
-   var green = parseInt($("#greenshift").val());
-
-   document.getElementById("output").innerHTML = red + ", " + green + ", " + blue;
+   
 
    var data = beforectx.getImageData(0, 0, before.width, before.height);
 
@@ -120,9 +140,16 @@ function drawEncryption(){
    if (data.data.length != 0){
       switch($("#selector").val()){
          case("caesar"):
-               ctx.putImageData(shiftCipher(data, red, green, blue), 0, 0);
+            var red = parseInt($("#redshift").val());
+            var blue = parseInt($("#blueshift").val());
+            var green = parseInt($("#greenshift").val());
+
+            document.getElementById("output").innerHTML = red + ", " + green + ", " + blue;
+            ctx.putImageData(shiftCipher(data, red, green, blue), 0, 0);
          break;
          case("affine"):
+            var key = parseInt($('#redshift').val());
+            ctx.putImageData(affineCipher(data, key), 0, 0);
          break;
          case("vigenere"):
          break;
@@ -169,4 +196,17 @@ function shiftCipher(data, keyred, keygreen, keyblue) {
    return data;
 }
 
+function affineCipher(data, key) {
+   if (encrypting){
+      for (var i=0; i<data.data.length; i+=4){
+         data.data[i] = (data.data[i] + (key & 255)) % 256;
+         data.data[i+1] = (data.data[i+1] + ((key >> 8) & 255)) % 256;
+         data.data[i+2] = (data.data[i+2] + ((key >> 16) & 255)) % 256;
+      }
+   } else {
+
+   }
+
+   return data;
+}
 
