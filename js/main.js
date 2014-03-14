@@ -45,17 +45,28 @@ function changeCipher(){
    console.log("changing cipher");
    var div = $('#sliders')[0];
    console.log(div);
+   var data = beforectx.getImageData(0, 0, before.width, before.height);
+   var pixels = data.data.length / 4;
+   console.log(pixels);
+
+
    switch ($('#selector').val()){
       case("caesar"):
+         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>";
+         $('#redshift').change(drawEncryption);
       break;
       case("affine"):
-         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>"
+         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>";
+         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>";
          $('#redshift').change(drawEncryption);
-         console.log("it changed, dummy");
       break;
       case("vigenere"):
       break;
       case("aes"):
+      break;
+      case("xorShuffle"):
+         div.innerHTML = "<input type='range' name='red' min='0' max='16777216' id='redshift' value='10'>";
+         $('#redshift').change(drawEncryption);
       break;
       default:
          console.log("Yur dumb u haker");
@@ -64,6 +75,7 @@ function changeCipher(){
 }
 //add listener to combo box
 $('#selector').change(changeCipher);
+$('#redshift').change(drawEncryption);
 
 /* Gets the file URL of a dropped file onto the page */
 function droppedFile(e) {
@@ -132,28 +144,26 @@ function createContext(imgurl){
 /* Helper function chooses which encryption type to use */
 function drawEncryption(){
 
-   
-
    var data = beforectx.getImageData(0, 0, before.width, before.height);
 
    console.log(data);
    if (data.data.length != 0){
+
+      var key = parseInt($('#redshift').val());
+
       switch($("#selector").val()){
          case("caesar"):
-            var red = parseInt($("#redshift").val());
-            var blue = parseInt($("#blueshift").val());
-            var green = parseInt($("#greenshift").val());
-
-            document.getElementById("output").innerHTML = red + ", " + green + ", " + blue;
-            ctx.putImageData(shiftCipher(data, red, green, blue), 0, 0);
+            ctx.putImageData(shiftCipher(data, key), 0, 0);
          break;
          case("affine"):
-            var key = parseInt($('#redshift').val());
             ctx.putImageData(affineCipher(data, key), 0, 0);
          break;
          case("vigenere"):
          break;
          case("aes"):
+         break;
+         case("xorShuffle"):
+            ctx.putImageData(xorShuffleCipher(data, key), 0, 0);
          break;
          default:
          console.log("Yur dumb u haker");
@@ -161,35 +171,28 @@ function drawEncryption(){
    }
 }
 
-/* Add the draw function to the range inputs */
-document.getElementById("redshift").addEventListener('change', drawEncryption, false);
-document.getElementById("greenshift").addEventListener('change', drawEncryption, false);
-document.getElementById("blueshift").addEventListener('change', drawEncryption, false);
-
 /* **********************************************************
  * begin functions
  * *********************************************************/
 
-function shiftCipher(data, keyred, keygreen, keyblue) {
-   console.log(keyred, keygreen, keyblue);
+function shiftCipher(data, key) {
 
    // Encrypt
    if (encrypting){
       for (var i=0; i<data.data.length; i+=4){
 
-         data.data[i] = (data.data[i] + keyred) % 256;
-         data.data[i+1] = (data.data[i+1] + keygreen) % 256;
-         data.data[i+2] = (data.data[i+2] + keyblue) % 256;
+         data.data[i] = (data.data[i] + (key & 255)) % 256;
+         data.data[i+1] = (data.data[i+1] + ((key >> 8) & 255)) % 256;
+         data.data[i+2] = (data.data[i+2] + ((key >> 16) & 255)) % 256;
+
       }
 
    }else{
 
       for (var i=0; i<data.data.length; i+=4){
-
-         data.data[i] = (data.data[i] + 256 - keyred) % 256;
-         data.data[i+1] = (data.data[i+1] + 256 - keygreen) % 256;
-         data.data[i+2] = (data.data[i+2] + 256 - keyblue) % 256;
-
+         data.data[i] = (data.data[i] + (256 - (key & 255))) % 256;
+         data.data[i+1] = (data.data[i+1] + (256 - ((key >> 8) & 255))) % 256;
+         data.data[i+2] = (data.data[i+2] + (256 - ((key >> 16) & 255))) % 256;
       }
    }
 
@@ -199,9 +202,7 @@ function shiftCipher(data, keyred, keygreen, keyblue) {
 function affineCipher(data, key) {
    if (encrypting){
       for (var i=0; i<data.data.length; i+=4){
-         data.data[i] = (data.data[i] + (key & 255)) % 256;
-         data.data[i+1] = (data.data[i+1] + ((key >> 8) & 255)) % 256;
-         data.data[i+2] = (data.data[i+2] + ((key >> 16) & 255)) % 256;
+         
       }
    } else {
 
@@ -210,3 +211,49 @@ function affineCipher(data, key) {
    return data;
 }
 
+function xorShuffleCipher(data, key) {
+
+   var tempArray = beforectx.getImageData(0, 0, before.width, before.height);
+   var length = data.data.length / 2
+
+   if (encrypting){
+      for (var i=0; i<data.data.length / 2; i+=4){
+
+         // Bottom half becomes top half
+         tempArray.data[i + length] = data.data[i];
+         tempArray.data[i + 1 + length] = data.data[i + 1];
+         tempArray.data[i + 2 + length] = data.data[i + 2];
+
+         // Top half XORed with key
+         tempArray.data[i] = (data.data[i] ^ (key & 255)) % 256;
+         tempArray.data[i+1] = (data.data[i+1] ^ ((key >> 8) & 255)) % 256;
+         tempArray.data[i+2] = (data.data[i+2] ^ ((key >> 16) & 255)) % 256;
+
+         // Top half XORed with key XORed with bottom half
+         tempArray.data[i] = (tempArray.data[i] ^ data.data[i + length]) % 256;
+         tempArray.data[i+1] = (tempArray.data[i+1] ^ data.data[i + length + 1]) % 256;
+         tempArray.data[i+2] = (tempArray.data[i+2] ^ data.data[i + length + 2]) % 256;
+
+      }
+   } else {
+
+         for (var i=0; i<data.data.length / 2; i+=4){
+            // Top half of temp becomes bottom half of data
+            tempArray.data[i] = data.data[i + length];
+            tempArray.data[i + 1] = data.data[i + 1 + length];
+            tempArray.data[i + 2] = data.data[i + 2 + length];
+
+            // Bottom half of temp becomes top half of temp XORed with key
+            tempArray.data[i + length] = (tempArray.data[i] ^ (key & 255)) % 256;
+            tempArray.data[i + 1 + length] = (tempArray.data[i+1] ^ ((key >> 8) & 255)) % 256;
+            tempArray.data[i + 2 + length] = (tempArray.data[i+2] ^ ((key >> 16) & 255)) % 256;
+
+            // Bottom half of temp becomes bottom half of temp XORed with top half of data
+            tempArray.data[i + length] = (tempArray.data[i + length] ^ data.data[i]) % 256;
+            tempArray.data[i + 1 + length] = (tempArray.data[i + 1 + length] ^ data.data[i + 1]) % 256;
+            tempArray.data[i + 2 + length] = (tempArray.data[i + 2 + length] ^ data.data[i + 2]) % 256;
+         }
+   }
+
+   return tempArray;
+}
