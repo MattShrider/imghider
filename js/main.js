@@ -38,7 +38,7 @@ var uploadButton = document.getElementById('filechooser');
 uploadButton.addEventListener('change', fileChanged, false);
 save.addEventListener('click', function(){
    var dataURL = can.toDataURL("image/png");
-   window.open(dataURL);
+   Canvas2Image.saveAsPNG(can);
 }, false);
 
 function changeCipher(){
