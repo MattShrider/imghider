@@ -56,9 +56,10 @@ function changeCipher(){
          $('#redshift').change(drawEncryption);
       break;
       case("affine"):
-         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>";
-         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>";
-         $('#redshift').change(drawEncryption);
+         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='shift1' value='1'>" +
+         "<input type='range' name='red' min='0' max='16581375' id='shift2' value='10'>";
+         $('#shift1').change(drawEncryption);
+         $('#shift2').change(drawEncryption);
       break;
       case("vigenere"):
       break;
@@ -156,7 +157,9 @@ function drawEncryption(){
             ctx.putImageData(shiftCipher(data, key), 0, 0);
          break;
          case("affine"):
-            ctx.putImageData(affineCipher(data, key), 0, 0);
+            var multiplyKey = parseInt($('#shift1').val());
+            var additionKey = parseInt($('#shift2').val());
+            ctx.putImageData(affineCipher(data, multiplyKey, additionKey), 0, 0);
          break;
          case("vigenere"):
          break;
@@ -199,10 +202,16 @@ function shiftCipher(data, key) {
    return data;
 }
 
-function affineCipher(data, key) {
+function affineCipher(data, multiplyKey, additionKey) {
    if (encrypting){
       for (var i=0; i<data.data.length; i+=4){
-         
+         data.data[i] = (data.data[i] * (multiplyKey & 255)) % 256;
+         data.data[i+1] = (data.data[i+1] * ((multiplyKey >> 8) & 255)) % 256;
+         data.data[i+2] = (data.data[i+2] * ((multiplyKey >> 16) & 255)) % 256;
+
+         data.data[i] = (data.data[i] + (additionKey & 255)) % 256;
+         data.data[i+1] = (data.data[i+1] + ((additionKey >> 8) & 255)) % 256;
+         data.data[i+2] = (data.data[i+2] + ((additionKey >> 16) & 255)) % 256;
       }
    } else {
 
