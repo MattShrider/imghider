@@ -49,17 +49,22 @@ function changeCipher(){
    var pixels = data.data.length / 4;
    console.log(pixels);
 
-
    switch ($('#selector').val()){
       case("caesar"):
-         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>";
-         $('#redshift').change(drawEncryption);
+         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
+	 "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
+         $('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
+	 $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
       break;
       case("affine"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='shift1' value='1'>" +
-         "<input type='range' name='red' min='0' max='16581375' id='shift2' value='10'>";
-         $('#shift1').change(drawEncryption);
-         $('#shift2').change(drawEncryption);
+         "<input type='range' name='red' min='0' max='16581375' id='shift2' value='10'>" +
+	 "<br/><input type='number' name='keynum' value='65793' min='0' max='16581375' id='num1'> " +
+	 "<input type='number' name='keynum' value='0' min='0' max='16581375' id='num2'>";
+         $('#shift1').change(function(){$('#num1').val($(this).val()); drawEncryption()});
+         $('#shift2').change(function(){$('#num2').val($(this).val()); drawEncryption()});
+	 $('#num1').change(function(){$('#shift1').val($(this).val()); drawEncryption()});
+	 $('#num2').change(function(){$('#shift2').val($(this).val()); drawEncryption()});
       break;
       case("vigenere"):
       break;
@@ -75,8 +80,9 @@ function changeCipher(){
 
 }
 //add listener to combo box
+$('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
+$('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
 $('#selector').change(changeCipher);
-$('#redshift').change(drawEncryption);
 
 /* Gets the file URL of a dropped file onto the page */
 function droppedFile(e) {
