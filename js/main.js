@@ -220,7 +220,18 @@ function affineCipher(data, multiplyKey, additionKey) {
          data.data[i+2] = (data.data[i+2] + ((additionKey >> 16) & 255)) % 256;
       }
    } else {
+         data.data[i] = (data.data[i] + (256 - (additionKey & 255))) % 256;
+         data.data[i+1] = (data.data[i+1] + (256 - ((additionKey >> 8) & 255))) % 256;
+         data.data[i+2] = (data.data[i+2] + (256 - ((additionKey >> 16) & 255))) % 256;
 
+         var r = modinv(multiplyKey & 255, 256);
+         var g = modinv((multiplyKey >> 8) & 255, 256);
+         var b = modinv((multiplyKey >> 16) & 255, 256);
+         console.log(r, g, b);
+
+         data.data[i] = (data.data[i] * r) % 256;
+         data.data[i+1] = (data.data[i+1] * g) % 256;
+         data.data[i+2] = (data.data[i+2] * b) % 256;
    }
 
    return data;
@@ -271,4 +282,29 @@ function xorShuffleCipher(data, key) {
    }
 
    return tempArray;
+}
+
+function egcd(a,b){
+   if (a == 0){
+      var temp = {g: b, x: 0, y: 1};
+      return temp;
+   } else {
+      var temp = egcd(b % a, a);
+      g = temp.g;
+      y = temp.x;
+      x = temp.y;
+      temp = {g: g, x: x-Math.floor(b / a) * y, y: y};
+      return temp;
+   }
+}
+
+function modinv(a, m){
+   temp = egcd(a, m);
+   g = temp.g, x = temp.x, y=temp.y;
+   if (g != 1){
+      console.log("No modular inverse");
+      return 65793;
+   } else {
+      return ((x % m) + m) % m;
+   }
 }
