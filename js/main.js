@@ -26,6 +26,9 @@ var ctxoff=offscreen.getContext("2d");
 
 var imgData;
 
+/* Variables used to check if an affine key is ok */
+var goodRed, goodBlue, goodGreen = true;
+
 function fileChanged(e) {
    console.log(e);
    var files = e.target.files;
@@ -209,8 +212,15 @@ function shiftCipher(data, key) {
 }
 
 function affineCipher(data, multiplyKey, additionKey) {
-   if (encrypting){
-      for (var i=0; i<data.data.length; i+=4){
+   goodRed = true;
+   goodBlue = true;
+   goodGreen = true;
+   if (encrypting){ for (var i=0; i<data.data.length; i+=4){
+
+         goodRed = modinv(256, multiplyKey & 255)[1];
+         goodBlue = modinv(256, multiplyKey >> 8 & 255)[1];
+         goodGreen = modinv(256, multiplyKey >> 16 & 255)[1];
+      
          data.data[i] = (data.data[i] * (multiplyKey & 255)) % 256;
          data.data[i+1] = (data.data[i+1] * ((multiplyKey >> 8) & 255)) % 256;
          data.data[i+2] = (data.data[i+2] * ((multiplyKey >> 16) & 255)) % 256;
@@ -220,18 +230,31 @@ function affineCipher(data, multiplyKey, additionKey) {
          data.data[i+2] = (data.data[i+2] + ((additionKey >> 16) & 255)) % 256;
       }
    } else {
+      for (var i=0; i<data.data.length; i+=4){
+
          data.data[i] = (data.data[i] + (256 - (additionKey & 255))) % 256;
          data.data[i+1] = (data.data[i+1] + (256 - ((additionKey >> 8) & 255))) % 256;
          data.data[i+2] = (data.data[i+2] + (256 - ((additionKey >> 16) & 255))) % 256;
 
-         var r = modinv(multiplyKey & 255, 256);
-         var g = modinv((multiplyKey >> 8) & 255, 256);
-         var b = modinv((multiplyKey >> 16) & 255, 256);
-         console.log(r, g, b);
+         var r = modinv(multiplyKey & 255, 256)[0];
+         var g = modinv((multiplyKey >> 8) & 255, 256)[0];
+         var b = modinv((multiplyKey >> 16) & 255, 256)[0];
 
          data.data[i] = (data.data[i] * r) % 256;
          data.data[i+1] = (data.data[i+1] * g) % 256;
          data.data[i+2] = (data.data[i+2] * b) % 256;
+
+      }
+   }
+
+   if (!goodRed){
+      console.log("Bad red key of ", (multiplyKey & 255));
+   }
+   if (!goodBlue){
+      console.log("Bad blue key of ", (multiplyKey >> 8 & 255));
+   }
+   if (!goodGreen){
+      console.log("Bad green key of ", (multiplyKey >> 16 & 255));
    }
 
    return data;
@@ -290,21 +313,22 @@ function egcd(a,b){
       return temp;
    } else {
       var temp = egcd(b % a, a);
-      g = temp.g;
-      y = temp.x;
-      x = temp.y;
+      var g = temp.g;
+      var y = temp.x;
+      var x = temp.y;
       temp = {g: g, x: x-Math.floor(b / a) * y, y: y};
       return temp;
    }
 }
 
 function modinv(a, m){
-   temp = egcd(a, m);
-   g = temp.g, x = temp.x, y=temp.y;
+   var badAffine = true;
+   var temp = egcd(a, m);
+   var g = temp.g, x = temp.x, y=temp.y;
    if (g != 1){
-      console.log("No modular inverse");
-      return 65793;
+      var badAffine = false;
+      return [65793, badAffine];
    } else {
-      return ((x % m) + m) % m;
+      return [((x % m) + m) % m, badAffine];
    }
 }
