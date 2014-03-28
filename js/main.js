@@ -70,6 +70,10 @@ function changeCipher(){
 	 $('#num2').change(function(){$('#shift2').val($(this).val()); drawEncryption()});
       break;
       case("vigenere"):
+         div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
+            "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
+         $('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
+         $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
       break;
       case("aes"):
       break;
@@ -171,6 +175,7 @@ function drawEncryption(){
             ctx.putImageData(affineCipher(data, multiplyKey, additionKey), 0, 0);
          break;
          case("vigenere"):
+            ctx.putImageData(shiftCipher(data, key), 0, 0);
          break;
          case("aes"):
          break;
@@ -205,6 +210,32 @@ function shiftCipher(data, key) {
          data.data[i] = (data.data[i] + (256 - (key & 255))) % 256;
          data.data[i+1] = (data.data[i+1] + (256 - ((key >> 8) & 255))) % 256;
          data.data[i+2] = (data.data[i+2] + (256 - ((key >> 16) & 255))) % 256;
+      }
+   }
+
+   return data;
+}
+
+function affineCipher(data, key) {
+
+   // Encrypt
+   if (encrypting){
+      var offset = 0;
+      for (var i=0; i<data.data.length; i+=4){
+         offset += 273;
+
+         data.data[i] = (data.data[i] + (key & 255) + (offset & 255)) % 256;
+         data.data[i+1] = (data.data[i+1] + ((key >> 8) & 255) + (offset >> 8 & 255)) % 256;
+         data.data[i+2] = (data.data[i+2] + ((key >> 16) & 255) + (offset >> 16 & 255)) % 256;
+      }
+
+   }else{
+      for (var i=0; i<data.data.length; i+=4){
+         offset += 273;
+
+         data.data[i] = (data.data[i] + (256 - (key & 255 + (offset & 255)))) % 256;
+         data.data[i+1] = (data.data[i+1] + (256 - ((key >> 8) & 255 + (offset >> 8 & 255)))) % 256;
+         data.data[i+2] = (data.data[i+2] + (256 - ((key >> 16) & 255 + (offset >> 16 & 255)))) % 256;
       }
    }
 
