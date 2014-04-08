@@ -11,6 +11,7 @@ var before=document.getElementById("img1");
 before.width = 300;
 before.height = 300;
 var beforectx = before.getContext("2d");
+var encrypted, decrypted;
 
 var encrypting = true;
 
@@ -66,8 +67,8 @@ function changeCipher(){
 	 "<input type='number' name='keynum' value='0' min='0' max='16581375' id='num2'>";
          $('#shift1').change(function(){$('#num1').val($(this).val()); drawEncryption()});
          $('#shift2').change(function(){$('#num2').val($(this).val()); drawEncryption()});
-	 $('#num1').change(function(){$('#shift1').val($(this).val()); drawEncryption()});
-	 $('#num2').change(function(){$('#shift2').val($(this).val()); drawEncryption()});
+	      $('#num1').change(function(){$('#shift1').val($(this).val()); drawEncryption()});
+	      $('#num2').change(function(){$('#shift2').val($(this).val()); drawEncryption()});
       break;
       case("vigenere"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
@@ -76,9 +77,25 @@ function changeCipher(){
          $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
       break;
       case("aes"):
+         div.innerHTML = "<input type='text' name='keynum' id='num1'>";
+         $('#num1').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
+
+         var encrypted = '' + CryptoJS.AES.encrypt("message", "pass");
+            console.log(encrypted);
+ 
+         var decrypted = CryptoJS.AES.decrypt(encrypted, "pass");
+            console.log(decrypted.toString(CryptoJS.enc.Utf8));
+
+
       break;
       case("xorShuffle"):
-         div.innerHTML = "<input type='range' name='red' min='0' max='16777216' id='redshift' value='10'>";
+
+         div.innerHTML ="<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
+            "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
+         $('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
+         $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
+
+     "<input type='range' name='red' min='0' max='16777216' id='redshift' value='10'>";
          $('#redshift').change(drawEncryption);
       break;
       default:
@@ -178,6 +195,18 @@ function drawEncryption(){
             ctx.putImageData(shiftCipher(data, key), 0, 0);
          break;
          case("aes"):
+
+            var key = $('#num1').val();
+            /* TODO - handle aes text files */
+            /*
+            if (encrypting){
+               var data = '' + CryptoJS.AES.encrypt(datastring, key);
+            } else {
+               var data = CryptoJS.AES.decrypt(str, key);
+            }
+            */
+            ctx.putImageData(aesCipher(data, key), 0, 0);
+  
          break;
          case("xorShuffle"):
             ctx.putImageData(xorShuffleCipher(data, key), 0, 0);
@@ -338,6 +367,48 @@ function xorShuffleCipher(data, key) {
    return tempArray;
 }
 
+function aesCipher(data, key){
+
+   var tempArray = beforectx.getImageData(0, 0, before.width, before.height);
+
+   if (encrypting){
+      var datastring = "";
+      for (var i=0; i<tempArray.data.length; i+=4){
+
+         datastring += padString(tempArray.data[i].toString(), 3);
+         datastring += padString(tempArray.data[i + 1].toString(), 3);
+         datastring += padString(tempArray.data[i + 2].toString(), 3);
+         datastring += padString(tempArray.data[i + 3].toString(), 3);
+
+      }
+
+      var encrypted = '' + CryptoJS.AES.encrypt(datastring, key);
+      var str = encrypted.toString();
+
+      var decrypted = CryptoJS.AES.decrypt(str, key);
+      var decstr = decrypted.toString(CryptoJS.enc.Utf8);
+
+
+      for (var i=0; i<tempArray.data.length; i+= 4){
+      tempArray.data[i] = ((str.charCodeAt(i) + str.charCodeAt(i+1) + str.charCodeAt(i+2)) & 255) % 256;
+      tempArray.data[i+1] = (((str.charCodeAt(i+3) + str.charCodeAt(i+4) + str.charCodeAt(i+5))) & 255) % 256;
+      tempArray.data[i+2] = (((str.charCodeAt(i+6) + str.charCodeAt(i+7) + str.charCodeAt(i+8))) & 255) % 256;
+      }
+      
+      console.log(tempArray);
+   } else {
+      //TODO - implement decrypting
+      var decrypted = CryptoJS.AES.decrypt(data, "pass");
+      var decstr = (decrypted.toString(CryptoJS.enc.Utf8));
+
+      for (var i=0; i<decstr.length / 3; i++){
+         tempArray.data[i] = parseInt(decstr.slice(i*3, i*3+3));
+      }
+   }
+
+   return tempArray;
+}
+
 function egcd(a,b){
    if (a == 0){
       var temp = {g: b, x: 0, y: 1};
@@ -362,4 +433,13 @@ function modinv(a, m){
    } else {
       return [((x % m) + m) % m, badAffine];
    }
+}
+
+function padString(str, num, c){
+   var s = str;
+   c = c || '0';
+   while(s.length < num){
+      s = c + s;
+   }
+   return s;
 }
