@@ -59,6 +59,10 @@ function changeCipher(){
 	 "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
          $('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
 	 $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
+         $('#algorithmDescription').html("The Caesar Cipher (Shift Cipher) is a substitution cipher" +
+          " in which each letter of plaintext in a message is replaced with another letter of the alphabet" +
+          " that is a fixed amount away from the original letter.  For Imghider, we will have a key that will" +
+          " determine what each RGB value of a pixel is shifted by.");
       break;
       case("affine"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='shift1' value='1'>" +
@@ -69,12 +73,27 @@ function changeCipher(){
          $('#shift2').change(function(){$('#num2').val($(this).val()); drawEncryption()});
 	      $('#num1').change(function(){$('#shift1').val($(this).val()); drawEncryption()});
 	      $('#num2').change(function(){$('#shift2').val($(this).val()); drawEncryption()});
+         $('#algorithmDescription').html("The Affine Cipher is another type of substitution cipher where" +
+            " each letter in the alphabet is mapped to its numeric equivalent, using a simple math" +
+            " function, and then converted back to a letter. An affine cipher has a 2 pair key (a,b)," +
+            " such as (17, 3). With this key, each letter is first converted to a number." +
+            " This number is then multiplied by 17, and then 3 is added to this number." +
+            " The last step is to mod by 26 (# of letters in the alphabet) to return a number" +
+            " between 0 and 25. This will correspond to the new letter. For Imghider, this method" +
+            " is being performed on RGB values. It is important to note that there is such a thing" +
+            " as a bad key with the affine cipher. For the affine cipher, part a of the key must be" +
+            " relatively prime to the total number possible combinations of RGB values. " +
+            " Sample good a key values: (#, #) (#,#)(#,#)");
       break;
       case("vigenere"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
             "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
          $('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
          $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
+         $('#algorithmDescription').html("The Vigenere Cipher is a method of encrypting text by using a" +
+            " series of different Caesar ciphers based on the letters of a keyword. It is essentially" +
+            " multiple Caesar ciphers, where the shift amount for each letter is determined by the text key." +
+            " Imghider uses a numeric value as a key, but still functions as a Vigenere Cipher.");
       break;
       case("aes"):
          div.innerHTML = "<input type='text' name='keynum' id='num1'>";
@@ -85,6 +104,11 @@ function changeCipher(){
  
          var decrypted = CryptoJS.AES.decrypt(encrypted, "pass");
             console.log(decrypted.toString(CryptoJS.enc.Utf8));
+
+         $('#algorithmDescription').html("Advanced Encryption System is a specification for the encryption" +
+         " of electronic data established by the U.S. National Institute of Standards and Technology. AES is" +
+         " very complex, and we suggest looking at http://en.wikipedia.org/wiki/Advanced_Encryption_Standard for" +
+         " more info. AES is very widely used today, and we can clearly see from the image below how strong AES is.");
 
 
       break;
@@ -97,6 +121,13 @@ function changeCipher(){
 
      "<input type='range' name='red' min='0' max='16777216' id='redshift' value='10'>";
          $('#redshift').change(drawEncryption);
+         $('#algorithmDescription').html("XOR Shuffle is an algorithm we came up with in our cryptography" +
+            " course (MTH-312), and is not a documented form of encryption. This cipher is very weak, as" +
+            " we can see from the picture below, but it is still interesting to see the affects of this" +
+            " type of algorithm. In this algorithm, the first half of our plaintext, or image, becomes the" +
+            " last half. The last half of our plaintext, or image, is XORed with the key. This last half" +
+            " is then XORed with the key, XORed with the first half. This is why you can see remnants of the" +
+            " bottom half of the picture in the top half of the encrypted image, because they were XORed together.");
       break;
       default:
          console.log("Yur dumb u haker");

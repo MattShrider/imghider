@@ -30,3 +30,7 @@
 #bottom{
    height: 20%;
 }
+
+#algorithmDescription{
+   clear: left;
+}
