@@ -83,7 +83,7 @@ function changeCipher(){
             " is being performed on RGB values. It is important to note that there is such a thing" +
             " as a bad key with the affine cipher. For the affine cipher, part a of the key must be" +
             " relatively prime to the total number possible combinations of RGB values. " +
-            " Sample good a key values: (#, #) (#,#)(#,#)");
+            " Sample good a key value: 724755 (RGB 11:13:19)");
       break;
       case("vigenere"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
