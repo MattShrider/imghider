@@ -334,7 +334,7 @@ function shiftCipher(data, key) {
 function vigenereCipher(data, key) {
    var lettervals = [];
    for(var i=0; i < key.length; i++){
-      lettervals[i] = key.charCodeAt(i) % 255;
+      lettervals[i] = key.charCodeAt(i) * 2 % 255;
    }
    console.log(lettervals);
    var counter = 0;
