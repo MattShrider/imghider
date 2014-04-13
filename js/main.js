@@ -110,8 +110,8 @@ function changeCipher(){
          $('#num1').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
          $('#algorithmDescription').html("The Vigenere Cipher is a method of encrypting text by using a" +
             " series of different Caesar ciphers based on the letters of a keyword. It is essentially" +
-            " multiple Caesar ciphers, where the shift amount for each letter is determined by the text key." +
-            " Imghider uses a numeric value as a key, but still functions as a Vigenere Cipher.");
+            " multiple Caesar ciphers, where the shift amount for each letter is determined by each letter" +
+			" of the text key.");
       break;
       case("aes"):
          div.innerHTML = "<input type='text' name='keynum' id='num1'> Load an AES text file: <input id='aeschooser' type='file' name='aesfiles[]'> <br/>";
