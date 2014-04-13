@@ -104,8 +104,10 @@ function changeCipher(){
       case("vigenere"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
             "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
+         div.innerHTML = "<input type='text' name='keynum' id='num1'>"
          $('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
          $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
+         $('#num1').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
          $('#algorithmDescription').html("The Vigenere Cipher is a method of encrypting text by using a" +
             " series of different Caesar ciphers based on the letters of a keyword. It is essentially" +
             " multiple Caesar ciphers, where the shift amount for each letter is determined by the text key." +
@@ -275,7 +277,8 @@ function drawEncryption(){
             ctx.putImageData(affineCipher(data, multiplyKey, additionKey), 0, 0);
          break;
          case("vigenere"):
-            ctx.putImageData(shiftCipher(data, key), 0, 0);
+            var key = $('#num1').val();
+            ctx.putImageData(vigenereCipher(data, key), 0, 0);
          break;
          case("aes"):
 
@@ -328,6 +331,38 @@ function shiftCipher(data, key) {
    return data;
 }
 
+function vigenereCipher(data, key) {
+   var lettervals = [];
+   for(var i=0; i < key.length; i++){
+      lettervals[i] = key.charCodeAt(i) % 255;
+   }
+   console.log(lettervals);
+   var counter = 0;
+
+   // Encrypt
+   if (encrypting){
+      var counter = 0;
+      for (var i=0; i<data.data.length; i+=4){
+
+         data.data[i] = (data.data[i] + (lettervals[counter++ % lettervals.length])) % 256;
+         data.data[i+1] = (data.data[i+1] + (lettervals[counter++ % lettervals.length])) % 256;
+         data.data[i+2] = (data.data[i+2] + (lettervals[counter++ % lettervals.length])) % 256;
+
+      }
+
+   }else{
+
+      for (var i=0; i<data.data.length; i+=4){
+         data.data[i] = (data.data[i] + (256 - (lettervals[counter++ % lettervals.length]))) % 256;
+         data.data[i+1] = (data.data[i+1] + (256 - (lettervals[counter++ % lettervals.length]))) % 256;
+         data.data[i+2] = (data.data[i+2] + (256 - (lettervals[counter++ % lettervals.length]))) % 256;
+      }
+   }
+
+   return data;
+}
+
+/*
 function affineCipher(data, key) {
 
    // Encrypt
@@ -353,6 +388,7 @@ function affineCipher(data, key) {
 
    return data;
 }
+*/
 
 function affineCipher(data, multiplyKey, additionKey) {
    goodRed = true;
