@@ -6,7 +6,7 @@
 }
 
 #middle{
-   height: 70%;
+   //height: 460px;
 }
 
 #img1{
@@ -34,4 +34,10 @@
 #algorithmDescription{
    clear: left;
    padding-top: 20px;
+}
+
+#presentation{
+   display: block;
+   padding-bottom: 10px;
+
 }
