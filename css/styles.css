@@ -2,29 +2,48 @@
    width: 100%;
    //height: 10%;
    min-height: 100px;
-   background: silver;
+   background: rgb(197, 225, 255);
+   box-shadow: 0 2px 10px #888888;
+   padding-left: 5px;
+   padding-top: 5px;
+}
+
+#imghider{
+   float: right;
+   font-size: 48px;
+   margin-right: 5em;
 }
 
 #middle{
    //height: 460px;
 }
 
+#canvasholder{
+   display: block;
+   margin-left: auto;
+   margin-right: auto;
+   width: 800px;
+}
+
 #img1{
    width: 300px;
    height: 300px;
    background: blue;
-   float: left;
+ //  float: left;
    margin-left: 40px;
    margin-top: 20px;
+   box-shadow: 0 2px 15px #888888;
+
 }
 
 #img2{
    width: 300;
    height: 300;
    background: red;
-   float: left;
+  // float: left;
    margin-left: 100px;
    margin-top: 20px;
+   box-shadow: 0 2px 15px #888888;
 }
 
 #bottom{
@@ -34,6 +53,14 @@
 #algorithmDescription{
    clear: left;
    padding-top: 20px;
+   padding: 5px;
+   background: rgb(250, 225, 171);
+   box-shadow: 0 2px 10px #4E4B46;
+   margin-top: 20px;
+   text-align: center;
+   width: 800px;
+   margin-left: auto;
+   margin-right: auto;
 }
 
 #presentation{
