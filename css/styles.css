@@ -1,6 +1,6 @@
 #top{
    width: 100%;
-   height: 10%;
+   //height: 10%;
    min-height: 100px;
    background: silver;
 }
@@ -33,4 +33,5 @@
 
 #algorithmDescription{
    clear: left;
+   padding-top: 20px;
 }

@@ -6,6 +6,10 @@
  * Author: Matthew Shrider
  * **********************************************/
 
+
+/* Used to get our aes string as a text file */
+var aesString = "";
+
 /* Get our "before" canvas */
 var before=document.getElementById("img1");
 before.width = 300;
@@ -37,13 +41,25 @@ function fileChanged(e) {
    readFile(files[0]);
 }
 
+
+
 //add listener to the upload button
 var uploadButton = document.getElementById('filechooser');
 uploadButton.addEventListener('change', fileChanged, false);
 save.addEventListener('click', function(){
-   var dataURL = can.toDataURL("image/png");
-   Canvas2Image.saveAsPNG(can);
+   if ($('#selector').val() != 'aes'){
+      var dataURL = can.toDataURL("image/png");
+      Canvas2Image.saveAsPNG(can);
+   } else {
+      if (aesString === ""){
+         return;
+      }
+      var blob = new Blob([aesString], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, "aes image.txt");
+   }
 }, false);
+
+
 
 function changeCipher(){
    console.log("changing cipher");
@@ -56,9 +72,9 @@ function changeCipher(){
    switch ($('#selector').val()){
       case("caesar"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='redshift' value='10'>" + 
-	 "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
+            "<br/><input type='number' name='keynum' value='10' min='0' max='16581375' id='num1'>";
          $('#redshift').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
-	 $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
+         $('#num1').change(function(){ $('#redshift').val($(this).val()); drawEncryption()});
          $('#algorithmDescription').html("The Caesar Cipher (Shift Cipher) is a substitution cipher" +
           " in which each letter of plaintext in a message is replaced with another letter of the alphabet" +
           " that is a fixed amount away from the original letter.  For Imghider, we will have a key that will" +
@@ -66,9 +82,9 @@ function changeCipher(){
       break;
       case("affine"):
          div.innerHTML = "<input type='range' name='red' min='0' max='16581375' id='shift1' value='1'>" +
-         "<input type='range' name='red' min='0' max='16581375' id='shift2' value='10'>" +
-	 "<br/><input type='number' name='keynum' value='65793' min='0' max='16581375' id='num1'> " +
-	 "<input type='number' name='keynum' value='0' min='0' max='16581375' id='num2'>";
+            "<input type='range' name='red' min='0' max='16581375' id='shift2' value='10'>" +
+            "<br/><input type='number' name='keynum' value='65793' min='0' max='16581375' id='num1'> " +
+            "<input type='number' name='keynum' value='0' min='0' max='16581375' id='num2'>";
          $('#shift1').change(function(){$('#num1').val($(this).val()); drawEncryption()});
          $('#shift2').change(function(){$('#num2').val($(this).val()); drawEncryption()});
 	      $('#num1').change(function(){$('#shift1').val($(this).val()); drawEncryption()});
@@ -96,14 +112,9 @@ function changeCipher(){
             " Imghider uses a numeric value as a key, but still functions as a Vigenere Cipher.");
       break;
       case("aes"):
-         div.innerHTML = "<input type='text' name='keynum' id='num1'>";
+         div.innerHTML = "<input type='text' name='keynum' id='num1'> Load an AES text file: <input id='aeschooser' type='file' name='aesfiles[]'> <br/>";
          $('#num1').change(function(){ $('#num1').val($(this).val()); drawEncryption()});
-
-         var encrypted = '' + CryptoJS.AES.encrypt("message", "pass");
-            console.log(encrypted);
- 
-         var decrypted = CryptoJS.AES.decrypt(encrypted, "pass");
-            console.log(decrypted.toString(CryptoJS.enc.Utf8));
+         document.getElementById('aeschooser').addEventListener('change', aesLoad, false);
 
          $('#algorithmDescription').html("Advanced Encryption System is a specification for the encryption" +
          " of electronic data established by the U.S. National Institute of Standards and Technology. AES is" +
@@ -201,6 +212,47 @@ function createContext(imgurl){
    imgData = beforectx.getImageData(0,0, before.width, before.height);
 
    drawEncryption();
+}
+
+function aesLoad(e) {
+
+   var file = e.target.files[0];
+
+   var reader = new FileReader();
+
+   reader.onload = (function(theFile) {
+      return function(e) {
+         console.log(e);
+         aesString = e.target.result;
+
+         /* Create an image object from our data url (from reader) */
+         var image = new Image(300, 300);
+         image.src = "";
+
+         beforectx.drawImage(image, 0, 0, 300, 300);
+         ctxoff.drawImage(image, 0, 0);
+
+         /* Before drawing, apply a cipher to the second image */
+         data = beforectx.getImageData(0,0, before.width, before.height);
+         console.log(data.data);
+         console.log(aesString);
+
+         for (var i=0; i<data.data.length; i+= 4){
+            data.data[i] = ((aesString.charCodeAt(i) + aesString.charCodeAt(i+1) + aesString.charCodeAt(i+2)) & 255) % 256;
+            data.data[i+1] = (((aesString.charCodeAt(i+3) + aesString.charCodeAt(i+4) + aesString.charCodeAt(i+5))) & 255) % 256;
+            data.data[i+2] = (((aesString.charCodeAt(i+6) + aesString.charCodeAt(i+7) + aesString.charCodeAt(i+8))) & 255) % 256;
+            data.data[i+3] = 255;
+         }
+
+         console.log(data.data);
+
+         beforectx.putImageData(data, 0, 0);
+
+      };
+   })(file);
+
+   reader.readAsText(file);
+
 }
 
 /* Helper function chooses which encryption type to use */
@@ -354,7 +406,7 @@ function affineCipher(data, multiplyKey, additionKey) {
 function xorShuffleCipher(data, key) {
 
    var tempArray = beforectx.getImageData(0, 0, before.width, before.height);
-   var length = data.data.length / 2
+   var length = data.data.length / 2;
 
    if (encrypting){
       for (var i=0; i<data.data.length / 2; i+=4){
@@ -377,22 +429,22 @@ function xorShuffleCipher(data, key) {
       }
    } else {
 
-         for (var i=0; i<data.data.length / 2; i+=4){
+      for (var i=0; i<data.data.length / 2; i+=4){
             // Top half of temp becomes bottom half of data
-            tempArray.data[i] = data.data[i + length];
-            tempArray.data[i + 1] = data.data[i + 1 + length];
-            tempArray.data[i + 2] = data.data[i + 2 + length];
+         tempArray.data[i] = data.data[i + length];
+         tempArray.data[i + 1] = data.data[i + 1 + length];
+         tempArray.data[i + 2] = data.data[i + 2 + length];
 
-            // Bottom half of temp becomes top half of temp XORed with key
-            tempArray.data[i + length] = (tempArray.data[i] ^ (key & 255)) % 256;
-            tempArray.data[i + 1 + length] = (tempArray.data[i+1] ^ ((key >> 8) & 255)) % 256;
-            tempArray.data[i + 2 + length] = (tempArray.data[i+2] ^ ((key >> 16) & 255)) % 256;
+         // Bottom half of temp becomes top half of temp XORed with key
+         tempArray.data[i + length] = (tempArray.data[i] ^ (key & 255)) % 256;
+         tempArray.data[i + 1 + length] = (tempArray.data[i+1] ^ ((key >> 8) & 255)) % 256;
+         tempArray.data[i + 2 + length] = (tempArray.data[i+2] ^ ((key >> 16) & 255)) % 256;
 
-            // Bottom half of temp becomes bottom half of temp XORed with top half of data
-            tempArray.data[i + length] = (tempArray.data[i + length] ^ data.data[i]) % 256;
-            tempArray.data[i + 1 + length] = (tempArray.data[i + 1 + length] ^ data.data[i + 1]) % 256;
-            tempArray.data[i + 2 + length] = (tempArray.data[i + 2 + length] ^ data.data[i + 2]) % 256;
-         }
+         // Bottom half of temp becomes bottom half of temp XORed with top half of data
+         tempArray.data[i + length] = (tempArray.data[i + length] ^ data.data[i]) % 256;
+         tempArray.data[i + 1 + length] = (tempArray.data[i + 1 + length] ^ data.data[i + 1]) % 256;
+         tempArray.data[i + 2 + length] = (tempArray.data[i + 2 + length] ^ data.data[i + 2]) % 256;
+      }
    }
 
    return tempArray;
@@ -415,21 +467,23 @@ function aesCipher(data, key){
 
       var encrypted = '' + CryptoJS.AES.encrypt(datastring, key);
       var str = encrypted.toString();
+      aesString = str;
 
       var decrypted = CryptoJS.AES.decrypt(str, key);
       var decstr = decrypted.toString(CryptoJS.enc.Utf8);
 
 
       for (var i=0; i<tempArray.data.length; i+= 4){
-      tempArray.data[i] = ((str.charCodeAt(i) + str.charCodeAt(i+1) + str.charCodeAt(i+2)) & 255) % 256;
-      tempArray.data[i+1] = (((str.charCodeAt(i+3) + str.charCodeAt(i+4) + str.charCodeAt(i+5))) & 255) % 256;
-      tempArray.data[i+2] = (((str.charCodeAt(i+6) + str.charCodeAt(i+7) + str.charCodeAt(i+8))) & 255) % 256;
+         tempArray.data[i] = ((str.charCodeAt(i) + str.charCodeAt(i+1) + str.charCodeAt(i+2)) & 255) % 256;
+         tempArray.data[i+1] = (((str.charCodeAt(i+3) + str.charCodeAt(i+4) + str.charCodeAt(i+5))) & 255) % 256;
+         tempArray.data[i+2] = (((str.charCodeAt(i+6) + str.charCodeAt(i+7) + str.charCodeAt(i+8))) & 255) % 256;
       }
       
       console.log(tempArray);
    } else {
       //TODO - implement decrypting
-      var decrypted = CryptoJS.AES.decrypt(data, "pass");
+      console.log(aesString);
+      var decrypted = CryptoJS.AES.decrypt(aesString, key);
       var decstr = (decrypted.toString(CryptoJS.enc.Utf8));
 
       for (var i=0; i<decstr.length / 3; i++){
