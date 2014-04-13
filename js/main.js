@@ -121,7 +121,9 @@ function changeCipher(){
          $('#algorithmDescription').html("Advanced Encryption System is a specification for the encryption" +
          " of electronic data established by the U.S. National Institute of Standards and Technology. AES is" +
          " very complex, and we suggest looking at http://en.wikipedia.org/wiki/Advanced_Encryption_Standard for" +
-         " more info. AES is very widely used today, and we can clearly see from the image below how strong AES is.");
+         " more info. AES is very widely used today, and we can clearly see from the image below how strong AES is." +
+         " Because AES creates a ciphertext larger than the plaintext, the file cannot be stored as an Image, so when" +
+         " saving AES images, we choose to save as a text file.");
 
 
       break;
